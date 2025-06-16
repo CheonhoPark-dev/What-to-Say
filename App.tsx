@@ -1,5 +1,6 @@
 
 import React, { useState, useCallback, useEffect } from 'react';
+import { Analytics } from '@vercel/analytics/react';
 import { AnalysisResult, UploadedImageInfo } from './types';
 import { analyzeConversation } from './services/geminiService';
 import { Header } from './components/Header';
@@ -301,6 +302,7 @@ const App: React.FC = () => {
           onClose={handleCloseImageModal} 
         />
       )}
+      <Analytics />
     </div>
   );
 };
