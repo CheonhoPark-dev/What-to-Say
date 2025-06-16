@@ -1,0 +1,5 @@
+{
+  "name": "뭐라해? (What-to-Say?)",
+  "description": "뭐라해? (What-to-Say?) is an AI-powered web application designed to assist users who struggle with messenger conversations. By uploading a screenshot of their chat, users receive LLM-generated suggestions for replies and advice on how to steer the conversation, helping to reduce communication anxiety and foster more confident interactions.",
+  "requestFramePermissions": []
+}
