@@ -3,6 +3,7 @@ import React, { useState, useCallback, useEffect } from 'react';
 import { Analytics } from '@vercel/analytics/react';
 import { AnalysisResult, UploadedImageInfo } from './types';
 import { analyzeConversation } from './services/geminiService';
+import { AdMobService } from './services/admobService';
 import { Header } from './components/Header';
 import { Footer } from './components/Footer';
 import { ImageUploadArea } from './components/ImageUploadArea';
@@ -154,6 +155,20 @@ const App: React.FC = () => {
     try {
       const result = await analyzeConversation(imageApiData, tags);
       setAnalysisResult(result);
+      
+      // 분석 완료 후 전면 광고 표시 (모바일에서만)
+      if (window.location.protocol !== 'http:' || window.location.hostname !== 'localhost') {
+        try {
+          await AdMobService.showInterstitialAd();
+          // 다음 광고 준비
+          setTimeout(() => {
+            AdMobService.prepareInterstitialAd();
+          }, 1000);
+        } catch (adError) {
+          console.log('Ad not shown:', adError);
+        }
+      }
+      
       setCurrentPage('results');
     } catch (e: any) {
       console.error("Analysis error:", e);
@@ -163,7 +178,7 @@ const App: React.FC = () => {
     }
   }, [uploadedImages, tags]);
 
-  const handleStartOver = useCallback(() => {
+  const handleStartOver = useCallback(async () => {
     setCurrentPage('upload');
     uploadedImages.forEach(img => URL.revokeObjectURL(img.previewUrl)); 
     setUploadedImages([]);
@@ -173,6 +188,15 @@ const App: React.FC = () => {
     setIsLoading(false);
     setCopySuccessMessage(null);
     setModalImageData(null); // Close modal on start over
+    
+    // 배너 광고 숨기기 (모바일에서만)
+    if (window.location.protocol !== 'http:' || window.location.hostname !== 'localhost') {
+      try {
+        await AdMobService.hideBannerAd();
+      } catch (error) {
+        console.log('Banner ad hide error:', error);
+      }
+    }
   }, [uploadedImages]);
 
   const handleCopyText = useCallback(async (text: string) => {
@@ -210,6 +234,24 @@ const App: React.FC = () => {
     };
   }, [uploadedImages]);
 
+  // AdMob 초기화
+  useEffect(() => {
+    const initializeAdMob = async () => {
+      try {
+        await AdMobService.initialize();
+        // 전면 광고 준비
+        await AdMobService.prepareInterstitialAd();
+      } catch (error) {
+        console.error('AdMob initialization error:', error);
+      }
+    };
+
+    // 모바일 환경에서만 AdMob 초기화
+    if (window.location.protocol !== 'http:' || window.location.hostname !== 'localhost') {
+      initializeAdMob();
+    }
+  }, []);
+
   useEffect(() => {
     if (error) {
       const timer = setTimeout(() => setError(null), 5000);
@@ -230,6 +272,22 @@ const App: React.FC = () => {
       document.removeEventListener('keydown', handleEscKey);
     };
   }, [modalImageData, handleCloseImageModal]);
+
+  // 결과 페이지에서 배너 광고 표시
+  useEffect(() => {
+    if (currentPage === 'results' && analysisResult) {
+      // 모바일 환경에서만 배너 광고 표시
+      if (window.location.protocol !== 'http:' || window.location.hostname !== 'localhost') {
+        setTimeout(async () => {
+          try {
+            await AdMobService.showBannerAd();
+          } catch (error) {
+            console.log('Banner ad not shown:', error);
+          }
+        }, 2000); // 2초 후 배너 광고 표시
+      }
+    }
+  }, [currentPage, analysisResult]);
 
 
   return (
@@ -283,6 +341,9 @@ const App: React.FC = () => {
               originalImagePreviews={uploadedImages.map(img => `data:${img.mimeType};base64,${img.base64Data}`)}
               onImageClick={handleOpenImageModal} // Pass handler
             />
+            
+
+            
             <ActionButton
               onClick={handleStartOver}
               variant="secondary"

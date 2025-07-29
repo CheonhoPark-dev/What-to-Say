@@ -7,7 +7,7 @@ import { AnalysisResult, SuggestedReply } from '../types';
 const ai = new GoogleGenAI({ apiKey: process.env.API_KEY! });
 
 // Model name should be used directly in generateContent call as per guidelines
-const MODEL_NAME = 'gemini-2.5-flash-preview-04-17';
+const MODEL_NAME = 'gemini-2.5-flash';
 
 
 export const analyzeConversation = async (

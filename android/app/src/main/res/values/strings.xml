@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">뭐라해?</string>
+    <string name="title_activity_main">뭐라해?</string>
+    <string name="package_name">com.whattosay.app</string>
+    <string name="custom_url_scheme">com.whattosay.app</string>
+</resources>
