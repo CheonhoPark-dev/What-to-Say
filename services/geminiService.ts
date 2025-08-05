@@ -1,5 +1,5 @@
 import { GoogleGenAI, GenerateContentResponse, Part } from "@google/genai";
-import { AnalysisResult, SuggestedReply } from '../types';
+import { AnalysisResult, SuggestedReply, ConversationTone } from '../types';
 
 // API_KEY is sourced from process.env.API_KEY as per guidelines.
 // App.tsx checks for its existence before calling analyzeConversation.
@@ -35,24 +35,42 @@ export const analyzeConversation = async (
     text: `
     당신은 메신저 대화 전문가입니다. 사용자가 제공한 ${images.length}개의 대화 스크린샷 이미지(순서대로 제공됨)와 아래 태그들을 분석해주세요.
     이 이미지들은 대화의 흐름을 나타냅니다. 이미지 순서가 중요합니다.
-    사용자의 다음 메시지로 사용할 만한 3가지 구체적인 답변을 추천하고, 대화를 어떻게 이끌어갈지에 대한 전략적 조언을 1~2문단으로 제공해주세요.
+
+    **중요: 대화 톤 분석**
+    1. 먼저 대화 이미지에서 사용자와 상대방이 사용하는 말투를 정확히 분석하세요:
+       - 반말(비격식) vs 존댓말(격식)
+       - 이모티콘 사용 빈도
+       - 줄임말, 신조어 사용
+       - 문장 길이와 스타일
+       - 전반적인 대화 분위기 (친근함/정중함/유머/진지함 등)
+
+    2. 분석한 톤에 맞춰 답변을 작성하세요:
+       - 반말 대화면 → 반말로 답변 ("그래", "좋아", "어떻게 생각해?")
+       - 존댓말 대화면 → 존댓말로 답변 ("그렇습니다", "좋습니다", "어떻게 생각하세요?")
+       - 이모티콘을 자주 쓰면 → 답변에도 적절한 이모티콘 포함
+       - 줄임말을 쓰면 → 자연스러운 줄임말 사용 ("ㅋㅋ", "ㅇㅇ", "그냥" 등)
 
     사용자 태그: ${tagString}
 
     응답은 반드시 다음 JSON 형식으로 반환해주세요.
     JSON 객체 외에는 다른 텍스트, 설명, 또는 주석을 절대 포함하지 마세요. 오직 순수한 JSON 데이터만 응답해야 합니다.
     {
+      "conversationTone": {
+        "formality": "formal|informal", 
+        "emojiUsage": "high|medium|low",
+        "style": "친근함|정중함|유머|진지함 등의 대화 스타일"
+      },
       "suggestedReplies": [
-        {"id": "reply1", "text": "첫 번째 추천 답변입니다."},
-        {"id": "reply2", "text": "두 번째 추천 답변입니다."},
-        {"id": "reply3", "text": "세 번째 추천 답변입니다."}
+        {"id": "reply1", "text": "대화 톤에 맞춘 첫 번째 답변"},
+        {"id": "reply2", "text": "대화 톤에 맞춘 두 번째 답변"},
+        {"id": "reply3", "text": "대화 톤에 맞춘 세 번째 답변"}
       ],
-      "conversationFlow": "대화 흐름에 대한 조언입니다. 예를 들어, 상대방의 반응을 살피고..."
+      "conversationFlow": "대화 흐름에 대한 조언 (분석한 톤으로 작성)"
     }
 
     제공하는 모든 텍스트는 한국어로 작성해주세요.
-    추천 답변은 사용자가 바로 복사해서 사용할 수 있도록 자연스럽고 완성된 문장 형태로 제공해주세요.
-    대화 흐름 조언은 사용자가 대화의 목적 (태그 기반)을 달성하는 데 도움이 되도록 구체적으로 작성해주세요.
+    추천 답변은 대화에서 분석한 말투와 스타일을 정확히 반영하여 사용자가 바로 복사해서 사용할 수 있도록 자연스럽고 완성된 문장 형태로 제공해주세요.
+    대화 흐름 조언도 분석한 톤에 맞춰 작성하되, 사용자가 대화의 목적 (태그 기반)을 달성하는 데 도움이 되도록 구체적으로 작성해주세요.
     `,
   };
 
@@ -100,7 +118,18 @@ export const analyzeConversation = async (
          repliesWithIds.push({id: 'fallback-1', text: "죄송해요, 지금은 적절한 답변을 찾기 어렵네요. 좀 더 일반적인 안부 인사를 해보는 건 어때요?"});
       }
 
+      // Parse conversation tone if available
+      let conversationTone: ConversationTone | undefined;
+      if (parsedData.conversationTone) {
+        conversationTone = {
+          formality: parsedData.conversationTone.formality || 'informal',
+          emojiUsage: parsedData.conversationTone.emojiUsage || 'medium',
+          style: parsedData.conversationTone.style || '친근함'
+        };
+      }
+
       return {
+        conversationTone,
         suggestedReplies: repliesWithIds,
         conversationFlow: parsedData.conversationFlow || "대화 흐름에 대한 조언을 받지 못했습니다. 일반적인 대화를 이어나가 보세요."
       };

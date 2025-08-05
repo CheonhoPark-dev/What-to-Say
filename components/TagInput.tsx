@@ -57,13 +57,13 @@ export const TagInput: React.FC<TagInputProps> = ({ currentTags, onTagsUpdate })
           <TagIcon className="w-4 h-4 mr-2 text-slate-400" />
           태그 추가 (선택 사항, 예: #친절하게 #데이트)
         </label>
-        <div className="mt-1 flex flex-wrap gap-2 p-2 border border-slate-600 rounded-md bg-slate-700 focus-within:border-sky-500 focus-within:ring-1 focus-within:ring-sky-500">
+        <div className="mt-1 flex flex-wrap gap-2 p-3 border border-slate-500 rounded-xl glass-dark focus-within:border-sky-400 focus-within:ring-2 focus-within:ring-sky-400/30 transition-all duration-300">
           {currentTags.map(tag => (
-            <span key={tag} className="flex items-center px-2 py-1 bg-sky-600 text-white text-xs font-medium rounded-full animate-fadeIn">
+            <span key={tag} className="flex items-center px-3 py-1.5 bg-gradient-to-r from-sky-500 to-blue-600 text-white text-sm font-medium rounded-full animate-slideIn shadow-lg hover:shadow-sky-500/25 transition-all duration-200">
               {tag}
               <button
                 type="button"
-                className="ml-1.5 text-sky-200 hover:text-white focus:outline-none"
+                className="ml-2 text-sky-100 hover:text-white hover:bg-white/20 rounded-full w-5 h-5 flex items-center justify-center transition-colors duration-200 focus:outline-none"
                 onClick={() => removeTag(tag)}
                 aria-label={`태그 ${tag} 제거`}
               >
@@ -79,7 +79,7 @@ export const TagInput: React.FC<TagInputProps> = ({ currentTags, onTagsUpdate })
             onKeyDown={handleKeyDown}
             onPaste={handlePaste}
             placeholder={canAddMoreTags ? (currentTags.length === 0 ? "태그 입력 후 Enter 또는 스페이스" : "태그 추가...") : `최대 ${MAX_TAGS}개 태그`}
-            className="flex-grow bg-transparent text-slate-200 placeholder-slate-400 focus:outline-none text-sm p-1 min-w-[150px]"
+            className="flex-grow bg-transparent text-slate-100 placeholder-slate-400 focus:outline-none text-sm p-2 min-w-[150px] font-medium"
             disabled={!canAddMoreTags}
           />
         </div>
@@ -87,7 +87,10 @@ export const TagInput: React.FC<TagInputProps> = ({ currentTags, onTagsUpdate })
       </div>
 
       <div>
-        <h4 className="text-sm font-medium text-slate-300 mb-2">추천 태그</h4>
+        <h4 className="text-sm font-medium text-slate-300 mb-3 flex items-center">
+          <span className="w-2 h-2 bg-sky-500 rounded-full mr-2"></span>
+          추천 태그
+        </h4>
         <div className="flex flex-wrap gap-2">
           {RECOMMENDED_TAGS.map(recTag => {
             const isAdded = currentTags.includes(recTag);
@@ -98,12 +101,12 @@ export const TagInput: React.FC<TagInputProps> = ({ currentTags, onTagsUpdate })
                 type="button"
                 onClick={() => handleRecommendedTagClick(recTag)}
                 disabled={isDisabled}
-                className={`px-2.5 py-1 text-xs font-medium rounded-full transition-colors duration-150
+                className={`px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 transform hover:scale-105 active:scale-95
                   ${isAdded 
-                    ? 'bg-sky-700 text-sky-300 cursor-default' 
+                    ? 'bg-gradient-to-r from-sky-600 to-blue-700 text-sky-100 cursor-default shadow-lg' 
                     : isDisabled // Not added, but limit reached
-                    ? 'bg-slate-600 text-slate-400 cursor-not-allowed'
-                    : 'bg-slate-600 hover:bg-slate-500 text-slate-200 focus:ring-2 focus:ring-sky-500 focus:ring-opacity-50'
+                    ? 'bg-slate-700 text-slate-500 cursor-not-allowed'
+                    : 'glass-dark text-slate-200 hover:bg-slate-600/80 hover:text-white focus:ring-2 focus:ring-sky-500/50 shadow-md hover:shadow-lg border border-white/10'
                   }
                 `}
                 aria-pressed={isAdded}

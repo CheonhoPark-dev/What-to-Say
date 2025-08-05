@@ -96,32 +96,37 @@ export const ImageUploadArea: React.FC<ImageUploadAreaProps> = ({
       </div>
       
       {uploadedImages.length > 0 && (
-        <div className="space-y-3 p-3 bg-slate-700/50 rounded-md max-h-96 overflow-y-auto scrollbar-thin scrollbar-thumb-slate-600 scrollbar-track-slate-700/50">
+        <div className="space-y-3 p-4 glass rounded-xl max-h-96 overflow-y-auto scrollbar-thin border border-white/10">
           {uploadedImages.map((imgInfo, index) => (
-            <div key={imgInfo.id} className="bg-slate-800 p-2 rounded-md shadow-sm flex items-center justify-between animate-fadeIn">
+            <div key={imgInfo.id} className="glass-dark p-3 rounded-xl shadow-lg flex items-center justify-between animate-slideIn hover-lift border border-white/5">
               <div 
-                className="flex items-center space-x-2 flex-grow min-w-0 cursor-pointer hover:bg-slate-700/50 rounded p-1"
+                className="flex items-center space-x-3 flex-grow min-w-0 cursor-pointer hover:bg-white/5 rounded-lg p-2 transition-all duration-200"
                 onClick={() => onImageClick(imgInfo.previewUrl)}
                 role="button"
                 tabIndex={0}
                 onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') onImageClick(imgInfo.previewUrl);}}
                 aria-label={`이미지 ${imgInfo.file.name} 크게 보기`}
               >
-                <img 
-                  src={imgInfo.previewUrl} 
-                  alt={`Preview ${imgInfo.file.name}`} 
-                  className="w-12 h-12 object-cover rounded-md flex-shrink-0" 
-                  onError={(e) => {
-                    const target = e.target as HTMLImageElement;
-                    target.style.display = 'none';
-                    console.error('Image failed to load:', imgInfo.file.name);
-                  }}
-                  onLoad={(e) => {
-                    const target = e.target as HTMLImageElement;
-                    target.style.display = 'block';
-                  }}
-                />
-                <span className="text-xs text-slate-300 truncate" title={imgInfo.file.name}>{index+1}. {imgInfo.file.name}</span>
+                <div className="relative">
+                  <img 
+                    src={imgInfo.previewUrl} 
+                    alt={`Preview ${imgInfo.file.name}`} 
+                    className="w-14 h-14 object-cover rounded-lg flex-shrink-0 shadow-lg ring-2 ring-white/10" 
+                    onError={(e) => {
+                      const target = e.target as HTMLImageElement;
+                      target.style.display = 'none';
+                      console.error('Image failed to load:', imgInfo.file.name);
+                    }}
+                    onLoad={(e) => {
+                      const target = e.target as HTMLImageElement;
+                      target.style.display = 'block';
+                    }}
+                  />
+                  <div className="absolute -top-1 -left-1 bg-sky-500 text-white text-xs font-bold rounded-full w-6 h-6 flex items-center justify-center shadow-lg">
+                    {index + 1}
+                  </div>
+                </div>
+                <span className="text-sm text-slate-200 truncate font-medium" title={imgInfo.file.name}>{imgInfo.file.name}</span>
               </div>
               <div className="flex items-center space-x-1 flex-shrink-0 ml-2">
                 <ActionButton
@@ -161,7 +166,7 @@ export const ImageUploadArea: React.FC<ImageUploadAreaProps> = ({
 
       {uploadedImages.length < maxImages && (
         <div
-          className={`mt-1 flex justify-center px-6 pt-5 pb-6 border-2 ${isDragging ? 'border-sky-500 bg-sky-900 bg-opacity-30' : 'border-slate-600 border-dashed'} rounded-md cursor-pointer hover:border-sky-500 transition-colors duration-200`}
+          className={`mt-1 flex justify-center px-8 py-8 border-2 ${isDragging ? 'border-sky-400 bg-sky-500/10 animate-glow' : 'border-slate-500 border-dashed'} rounded-2xl cursor-pointer hover:border-sky-400 hover:bg-sky-500/5 transition-all duration-300 glass-dark backdrop-blur-xl`}
           onClick={handleAreaClick}
           onDragEnter={handleDragEnter}
           onDragLeave={handleDragLeave}
@@ -169,12 +174,20 @@ export const ImageUploadArea: React.FC<ImageUploadAreaProps> = ({
           onDrop={handleDrop}
           aria-label={uploadedImages.length === 0 ? "이미지 업로드 영역, 클릭 또는 드래그하여 파일 추가" : "이미지 추가 영역, 클릭 또는 드래그하여 파일 추가"}
         >
-          <div className="space-y-1 text-center py-4">
-            <UploadIcon className="mx-auto h-10 w-10 text-slate-400" />
-            <div className="flex text-sm text-slate-400">
-              <p className="pl-1">파일 드래그 또는 클릭하여 추가 ({uploadedImages.length}/{maxImages})</p>
+          <div className="space-y-3 text-center">
+            <div className="relative">
+              <UploadIcon className={`mx-auto h-12 w-12 ${isDragging ? 'text-sky-400 animate-pulse-subtle' : 'text-slate-400'} transition-colors duration-300`} />
+              {isDragging && (
+                <div className="absolute inset-0 bg-sky-400/20 rounded-full animate-ping"></div>
+              )}
             </div>
-            <p className="text-xs text-slate-500">PNG, JPG, JPEG</p>
+            <div className="space-y-1">
+              <p className="text-slate-300 font-medium">
+                {isDragging ? '파일을 여기에 놓으세요' : '파일 드래그 또는 클릭하여 추가'}
+              </p>
+              <p className="text-sm text-slate-400">({uploadedImages.length}/{maxImages}개 이미지)</p>
+              <p className="text-xs text-slate-500">PNG, JPG, JPEG · 최대 10MB</p>
+            </div>
           </div>
           <input
             id="image-upload-input" 

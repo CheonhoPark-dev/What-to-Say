@@ -291,28 +291,34 @@ const App: React.FC = () => {
 
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-gray-900 text-slate-100 flex flex-col items-center p-4 selection:bg-sky-500 selection:text-white">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900/20 to-slate-800 text-slate-100 flex flex-col items-center p-4 selection:bg-sky-500 selection:text-white bg-pattern relative overflow-hidden">
+      {/* Background decorative elements */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-sky-400/10 to-purple-500/10 rounded-full blur-3xl"></div>
+        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-tr from-purple-500/10 to-pink-500/10 rounded-full blur-3xl"></div>
+      </div>
+      
       <Header />
-      <main className="w-full max-w-2xl flex-grow flex flex-col items-center justify-center py-8">
+      <main className="w-full max-w-2xl flex-grow flex flex-col items-center justify-center py-8 relative z-10">
         {isLoading && <LoadingSpinner />}
 
         {error && !isLoading && (
-          <div className="fixed top-5 right-5 bg-red-500 text-white p-4 rounded-lg shadow-xl flex items-center z-50 animate-fadeIn">
-            <ExclamationCircleIcon className="h-6 w-6 mr-2" />
-            <span>{error}</span>
-            <button onClick={() => setError(null)} className="ml-4 text-xl font-bold">&times;</button>
+          <div className="fixed top-5 right-5 glass-dark text-white p-4 rounded-xl shadow-2xl flex items-center z-50 animate-slideIn border border-red-400/30">
+            <ExclamationCircleIcon className="h-6 w-6 mr-2 text-red-400" />
+            <span className="text-red-100">{error}</span>
+            <button onClick={() => setError(null)} className="ml-4 text-xl font-bold hover:bg-red-500/20 rounded-full w-6 h-6 flex items-center justify-center transition-colors">&times;</button>
           </div>
         )}
 
         {copySuccessMessage && !isLoading && (
-           <div className="fixed top-5 right-5 bg-green-500 text-white p-4 rounded-lg shadow-xl flex items-center z-50 animate-fadeIn">
-            <CheckCircleIcon className="h-6 w-6 mr-2" />
-            <span>{copySuccessMessage}</span>
+           <div className="fixed top-5 right-5 glass-dark text-white p-4 rounded-xl shadow-2xl flex items-center z-50 animate-slideIn border border-green-400/30">
+            <CheckCircleIcon className="h-6 w-6 mr-2 text-green-400" />
+            <span className="text-green-100">{copySuccessMessage}</span>
           </div>
         )}
 
         {!isLoading && currentPage === 'upload' && (
-          <div className="w-full space-y-8 p-6 bg-slate-800 bg-opacity-70 rounded-xl shadow-2xl backdrop-blur-md">
+          <div className="w-full space-y-8 p-8 glass-dark rounded-2xl shadow-2xl backdrop-blur-xl border border-white/10 hover-lift animate-fadeIn">
             <ImageUploadArea
               uploadedImages={uploadedImages}
               onFilesSelected={handleFilesSelected}
@@ -325,7 +331,7 @@ const App: React.FC = () => {
             <ActionButton
               onClick={handleAnalyze}
               disabled={uploadedImages.length === 0 || isLoading}
-              className="w-full"
+              className="w-full animate-pulse-subtle"
               variant="primary"
             >
               AI 분석 요청하기 ({uploadedImages.length}/{MAX_IMAGES}개 이미지)

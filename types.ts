@@ -3,7 +3,14 @@ export interface SuggestedReply {
   text: string;
 }
 
+export interface ConversationTone {
+  formality: 'formal' | 'informal';
+  emojiUsage: 'high' | 'medium' | 'low';
+  style: string;
+}
+
 export interface AnalysisResult {
+  conversationTone?: ConversationTone;
   suggestedReplies: SuggestedReply[];
   conversationFlow: string;
 }
